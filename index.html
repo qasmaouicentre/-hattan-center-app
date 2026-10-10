@@ -1,0 +1,1386 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#080808">
+  <title>مركز دروس الدعم والتقوية بحطان</title>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+  <style>
+    *{box-sizing:border-box}
+    :root{
+      --black:#080808;
+      --black2:#111;
+      --card:#151515;
+      --card2:#1c1c1c;
+      --gold:#d6ad4a;
+      --gold2:#f0d17d;
+      --white:#fff;
+      --muted:#aaa;
+      --green:#28a66a;
+      --red:#d9534f;
+      --border:#343434;
+    }
+
+    body{
+      margin:0;
+      font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Tahoma,Arial,sans-serif;
+      background:linear-gradient(145deg,#050505,#101010);
+      color:var(--white);
+      min-height:100vh;
+    }
+
+    button,input,select{font:inherit}
+
+    button{
+      cursor:pointer;
+    }
+
+    .hidden{display:none!important}
+
+    .topbar{
+      position:sticky;
+      top:0;
+      z-index:50;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding:14px 16px;
+      background:rgba(8,8,8,.96);
+      border-bottom:1px solid #292929;
+      backdrop-filter:blur(15px);
+    }
+
+    .brand{
+      display:flex;
+      align-items:center;
+      gap:11px;
+      min-width:0;
+    }
+
+    .logo{
+      width:48px;
+      height:48px;
+      border:1px solid var(--gold);
+      border-radius:50%;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--gold2);
+      font-size:25px;
+      font-weight:900;
+      background:#050505;
+      box-shadow:0 0 18px rgba(214,173,74,.15);
+    }
+
+    .brand h1{
+      font-size:16px;
+      margin:0;
+      color:var(--gold2);
+    }
+
+    .brand small{
+      color:#999;
+    }
+
+    .icon-btn{
+      border:1px solid var(--border);
+      background:#171717;
+      color:white;
+      border-radius:12px;
+      padding:10px 12px;
+    }
+
+    .container{
+      max-width:1200px;
+      margin:auto;
+      padding:18px 14px 100px;
+    }
+
+    .welcome{
+      padding:18px;
+      border:1px solid rgba(214,173,74,.35);
+      border-radius:20px;
+      background:
+        radial-gradient(circle at top right,rgba(214,173,74,.12),transparent 40%),
+        #111;
+      margin-bottom:18px;
+    }
+
+    .welcome h2{
+      margin:0 0 6px;
+      color:var(--gold2);
+      font-size:21px;
+    }
+
+    .welcome p{
+      margin:0;
+      color:#aaa;
+      line-height:1.7;
+    }
+
+    .stats{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:10px;
+      margin-bottom:18px;
+    }
+
+    .stat{
+      padding:15px;
+      background:var(--card);
+      border:1px solid var(--border);
+      border-radius:17px;
+    }
+
+    .stat .label{
+      color:#aaa;
+      font-size:13px;
+    }
+
+    .stat .value{
+      margin-top:8px;
+      font-size:23px;
+      font-weight:800;
+      color:white;
+    }
+
+    .stat.gold .value{color:var(--gold2)}
+    .stat.green .value{color:#62d99a}
+    .stat.red .value{color:#ff7772}
+
+    .section-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin:23px 2px 11px;
+    }
+
+    .section-title h3{
+      margin:0;
+      color:var(--gold2);
+      font-size:17px;
+    }
+
+    .grid{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:11px;
+    }
+
+    .menu-card{
+      min-height:115px;
+      padding:16px 10px;
+      border-radius:18px;
+      border:1px solid var(--border);
+      background:linear-gradient(145deg,#181818,#101010);
+      color:white;
+      text-align:center;
+      transition:.15s;
+    }
+
+    .menu-card:active{
+      transform:scale(.97);
+      border-color:var(--gold);
+    }
+
+    .menu-card .emoji{
+      font-size:29px;
+      margin-bottom:9px;
+    }
+
+    .menu-card strong{
+      display:block;
+      font-size:14px;
+    }
+
+    .menu-card small{
+      display:block;
+      color:#888;
+      margin-top:5px;
+      font-size:11px;
+    }
+
+    .panel{
+      background:#111;
+      border:1px solid var(--border);
+      border-radius:20px;
+      overflow:hidden;
+      margin-top:15px;
+    }
+
+    .panel-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:15px;
+      border-bottom:1px solid #292929;
+    }
+
+    .panel-head h3{
+      margin:0;
+      color:var(--gold2);
+    }
+
+    .panel-body{
+      padding:15px;
+    }
+
+    .form-grid{
+      display:grid;
+      gap:12px;
+    }
+
+    label{
+      color:#bbb;
+      font-size:13px;
+      display:block;
+      margin-bottom:6px;
+    }
+
+    input,select{
+      width:100%;
+      padding:13px;
+      border-radius:12px;
+      border:1px solid #3a3a3a;
+      background:#1b1b1b;
+      color:white;
+      outline:none;
+    }
+
+    input:focus,select:focus{
+      border-color:var(--gold);
+    }
+
+    .primary{
+      width:100%;
+      border:0;
+      padding:14px;
+      border-radius:13px;
+      font-weight:800;
+      color:#111;
+      background:linear-gradient(135deg,#c99c36,#f2d984);
+    }
+
+    .secondary{
+      border:1px solid #444;
+      background:#202020;
+      color:white;
+      padding:10px 13px;
+      border-radius:11px;
+    }
+
+    .danger{
+      background:#3a1515;
+      color:#ffaaa7;
+      border:1px solid #6b2929;
+      padding:10px;
+      border-radius:10px;
+    }
+
+    .table-wrap{
+      overflow:auto;
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      min-width:650px;
+    }
+
+    th,td{
+      padding:12px 10px;
+      border-bottom:1px solid #2d2d2d;
+      text-align:right;
+      font-size:13px;
+    }
+
+    th{
+      color:var(--gold2);
+      background:#181818;
+    }
+
+    td{color:#ddd}
+
+    .badge{
+      display:inline-block;
+      padding:5px 9px;
+      border-radius:20px;
+      font-size:11px;
+      background:#252525;
+    }
+
+    .badge.green{
+      background:#113a27;
+      color:#7be0a7;
+    }
+
+    .badge.red{
+      background:#411818;
+      color:#ff9894;
+    }
+
+    .empty{
+      padding:28px;
+      text-align:center;
+      color:#777;
+    }
+
+    .toast{
+      position:fixed;
+      z-index:100;
+      bottom:25px;
+      right:15px;
+      left:15px;
+      max-width:500px;
+      margin:auto;
+      background:#202020;
+      border:1px solid var(--gold);
+      padding:14px;
+      border-radius:13px;
+      text-align:center;
+      display:none;
+      box-shadow:0 12px 40px #000;
+    }
+
+    .modal{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.82);
+      z-index:80;
+      display:flex;
+      align-items:flex-end;
+      justify-content:center;
+    }
+
+    .modal-box{
+      width:100%;
+      max-width:650px;
+      max-height:92vh;
+      overflow:auto;
+      padding:18px;
+      background:#111;
+      border:1px solid #3a3a3a;
+      border-radius:24px 24px 0 0;
+    }
+
+    .modal-title{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:16px;
+    }
+
+    .modal-title h3{
+      margin:0;
+      color:var(--gold2);
+    }
+
+    .close{
+      background:#222;
+      color:white;
+      border:0;
+      width:38px;
+      height:38px;
+      border-radius:50%;
+    }
+
+    .loading{
+      text-align:center;
+      padding:25px;
+      color:var(--gold2);
+    }
+
+    .footer{
+      text-align:center;
+      color:#666;
+      font-size:11px;
+      margin-top:35px;
+    }
+
+    @media(min-width:750px){
+      .stats{grid-template-columns:repeat(4,1fr)}
+      .grid{grid-template-columns:repeat(4,1fr)}
+      .form-grid.two{grid-template-columns:1fr 1fr}
+    }
+  </style>
+</head>
+
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <div class="logo">Q</div>
+    <div>
+      <h1>دروس الدعم والتقوية بحطان</h1>
+      <small>نظام إدارة المركز</small>
+    </div>
+  </div>
+  <button class="icon-btn" onclick="loadDashboard()">↻</button>
+</header>
+
+<main class="container">
+
+  <section class="welcome">
+    <h2>لوحة القيادة</h2>
+    <p>إدارة التلاميذ، الأساتذة، الأداءات والمستحقات من مكان واحد.</p>
+  </section>
+
+  <section class="stats">
+    <div class="stat gold">
+      <div class="label">التلاميذ</div>
+      <div class="value" id="studentCount">0</div>
+    </div>
+
+    <div class="stat">
+      <div class="label">الأساتذة</div>
+      <div class="value" id="teacherCount">0</div>
+    </div>
+
+    <div class="stat green">
+      <div class="label">المداخيل</div>
+      <div class="value" id="incomeTotal">0 DH</div>
+    </div>
+
+    <div class="stat red">
+      <div class="label">الديون</div>
+      <div class="value" id="debtTotal">0 DH</div>
+    </div>
+  </section>
+
+  <div class="section-title">
+    <h3>الإدارة</h3>
+  </div>
+
+  <section class="grid">
+
+    <button class="menu-card" onclick="showStudents()">
+      <div class="emoji">🎓</div>
+      <strong>التلاميذ</strong>
+      <small>إضافة وإدارة التلاميذ</small>
+    </button>
+
+    <button class="menu-card" onclick="showTeachers()">
+      <div class="emoji">👨‍🏫</div>
+      <strong>الأساتذة</strong>
+      <small>الأساتذة ونسبة المركز</small>
+    </button>
+
+    <button class="menu-card" onclick="showSubjects()">
+      <div class="emoji">📚</div>
+      <strong>المواد</strong>
+      <small>المواد الدراسية</small>
+    </button>
+
+    <button class="menu-card" onclick="showGroups()">
+      <div class="emoji">👥</div>
+      <strong>الأفواج</strong>
+      <small>الأفواج والجداول</small>
+    </button>
+
+    <button class="menu-card" onclick="showPayments()">
+      <div class="emoji">💳</div>
+      <strong>الأداءات</strong>
+      <small>الاشتراكات والتحصيل</small>
+    </button>
+
+    <button class="menu-card" onclick="showDebts()">
+      <div class="emoji">📌</div>
+      <strong>الديون</strong>
+      <small>المبالغ غير المؤداة</small>
+    </button>
+
+    <button class="menu-card" onclick="showSettlements()">
+      <div class="emoji">💰</div>
+      <strong>تصفية الأساتذة</strong>
+      <small>25% للمركز أو النسبة المخصصة</small>
+    </button>
+
+    <button class="menu-card" onclick="showReports()">
+      <div class="emoji">📊</div>
+      <strong>التقارير</strong>
+      <small>المتابعة المالية والإدارية</small>
+    </button>
+
+  </section>
+
+  <section id="content"></section>
+
+  <div class="footer">
+    مركز دروس الدعم والتقوية بحطان • Hattan Center Management
+  </div>
+
+</main>
+
+<div id="modal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-title">
+      <h3 id="modalTitle">إضافة</h3>
+      <button class="close" onclick="closeModal()">×</button>
+    </div>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script>
+const SUPABASE_URL = "https://ggpuvaekmfeglzlvvekq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2uW2oO0nKs5Z_xCRRV1QWw_nI4vu4hZ";
+
+const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+const levels = [
+  "الأولى إعدادي",
+  "الثانية إعدادي",
+  "الثالثة إعدادي",
+  "الجذع المشترك",
+  "الأولى باكالوريا",
+  "الثانية باكالوريا"
+];
+
+function money(v){
+  return Number(v || 0).toFixed(2) + " DH";
+}
+
+function esc(v){
+  return String(v ?? "")
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;");
+}
+
+function toast(msg){
+  const t=document.getElementById("toast");
+  t.textContent=msg;
+  t.style.display="block";
+  setTimeout(()=>t.style.display="none",3000);
+}
+
+function openModal(title,html){
+  document.getElementById("modalTitle").textContent=title;
+  document.getElementById("modalContent").innerHTML=html;
+  document.getElementById("modal").classList.remove("hidden");
+}
+
+function closeModal(){
+  document.getElementById("modal").classList.add("hidden");
+}
+
+function loading(){
+  document.getElementById("content").innerHTML=
+    '<div class="panel"><div class="loading">جاري تحميل البيانات...</div></div>';
+}
+
+async function countTable(table){
+  const {count,error}=await db
+    .from(table)
+    .select("*",{count:"exact",head:true});
+
+  if(error) return 0;
+  return count || 0;
+}
+
+async function loadDashboard(){
+  const [students,teachers]=await Promise.all([
+    countTable("students"),
+    countTable("teachers")
+  ]);
+
+  document.getElementById("studentCount").textContent=students;
+  document.getElementById("teacherCount").textContent=teachers;
+
+  let income=0;
+  const pay=await db
+    .from("student_payments")
+    .select("amount,status");
+
+  if(!pay.error){
+    income=(pay.data||[])
+      .filter(x=>!["voided","cancelled"].includes(String(x.status||"").toLowerCase()))
+      .reduce((a,b)=>a+Number(b.amount||0),0);
+  }
+
+  document.getElementById("incomeTotal").textContent=money(income);
+
+  const dues=await db
+    .from("monthly_dues")
+    .select("amount_due,amount_paid,status");
+
+  let debt=0;
+
+  if(!dues.error){
+    debt=(dues.data||[])
+      .filter(x=>x.status!=="exempt")
+      .reduce((a,b)=>{
+        return a+Math.max(0,Number(b.amount_due||0)-Number(b.amount_paid||0));
+      },0);
+  }
+
+  document.getElementById("debtTotal").textContent=money(debt);
+}
+
+async function showStudents(){
+  loading();
+
+  const {data,error}=await db
+    .from("students")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  let rows=(data||[]).map(s=>`
+    <tr>
+      <td>${esc(s.full_name)}</td>
+      <td>${esc(s.school_level)}</td>
+      <td>${esc(s.phone||"-")}</td>
+      <td>${esc(s.parent_phone||"-")}</td>
+      <td>
+        <span class="badge ${s.active ? "green":"red"}">
+          ${s.active ? "نشط":"غير نشط"}
+        </span>
+      </td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>التلاميذ</h3>
+        <button class="secondary" onclick="studentForm()">+ إضافة تلميذ</button>
+      </div>
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>الاسم</th>
+              <th>المستوى</th>
+              <th>الهاتف</th>
+              <th>ولي الأمر</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا يوجد تلاميذ بعد.</div>`}
+      </div>
+    </div>`;
+}
+
+function studentForm(){
+  openModal("إضافة تلميذ",`
+    <div class="form-grid">
+      <div>
+        <label>الاسم الكامل *</label>
+        <input id="sName" placeholder="الاسم الكامل">
+      </div>
+
+      <div>
+        <label>المستوى الدراسي *</label>
+        <select id="sLevel">
+          ${levels.map(x=>`<option value="${x}">${x}</option>`).join("")}
+        </select>
+      </div>
+
+      <div>
+        <label>هاتف التلميذ</label>
+        <input id="sPhone" type="tel">
+      </div>
+
+      <div>
+        <label>هاتف ولي الأمر</label>
+        <input id="sParent" type="tel">
+      </div>
+
+      <button class="primary" onclick="addStudent()">حفظ التلميذ</button>
+    </div>
+  `);
+}
+
+async function addStudent(){
+  const full_name=document.getElementById("sName").value.trim();
+  const school_level=document.getElementById("sLevel").value;
+  const phone=document.getElementById("sPhone").value.trim();
+  const parent_phone=document.getElementById("sParent").value.trim();
+
+  if(!full_name){
+    toast("الاسم الكامل مطلوب");
+    return;
+  }
+
+  const {error}=await db.from("students").insert({
+    full_name,
+    school_level,
+    phone:phone||null,
+    parent_phone:parent_phone||null,
+    active:true
+  });
+
+  if(error){
+    toast("خطأ: "+error.message);
+    return;
+  }
+
+  closeModal();
+  toast("تمت إضافة التلميذ بنجاح");
+  await showStudents();
+  await loadDashboard();
+}
+
+async function showTeachers(){
+  loading();
+
+  const {data,error}=await db
+    .from("teachers")
+    .select("*")
+    .order("created_at",{ascending:false});
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  let rows=(data||[]).map(t=>`
+    <tr>
+      <td>${esc(t.full_name)}</td>
+      <td>${esc(t.phone||"-")}</td>
+      <td>
+        <span class="badge ${t.active ? "green":"red"}">
+          ${t.active ? "نشط":"غير نشط"}
+        </span>
+      </td>
+      <td>
+        <button class="secondary"
+          onclick="commissionForm('${t.id}','${esc(t.full_name)}')">
+          نسبة المركز
+        </button>
+      </td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>الأساتذة</h3>
+        <button class="secondary" onclick="teacherForm()">+ إضافة أستاذ</button>
+      </div>
+
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>الأستاذ</th>
+              <th>الهاتف</th>
+              <th>الحالة</th>
+              <th>النسبة</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا يوجد أساتذة بعد.</div>`}
+      </div>
+    </div>`;
+}
+
+function teacherForm(){
+  openModal("إضافة أستاذ",`
+    <div class="form-grid">
+      <div>
+        <label>الاسم الكامل *</label>
+        <input id="tName">
+      </div>
+
+      <div>
+        <label>الهاتف</label>
+        <input id="tPhone" type="tel">
+      </div>
+
+      <button class="primary" onclick="addTeacher()">حفظ الأستاذ</button>
+    </div>
+  `);
+}
+
+async function addTeacher(){
+  const full_name=document.getElementById("tName").value.trim();
+  const phone=document.getElementById("tPhone").value.trim();
+
+  if(!full_name){
+    toast("اسم الأستاذ مطلوب");
+    return;
+  }
+
+  const {data,error}=await db
+    .from("teachers")
+    .insert({
+      full_name,
+      phone:phone||null,
+      active:true
+    })
+    .select()
+    .single();
+
+  if(error){
+    toast("خطأ: "+error.message);
+    return;
+  }
+
+  if(data){
+    await db.from("teacher_commission_rules").insert({
+      teacher_id:data.id,
+      center_rate:25,
+      valid_from:new Date().toISOString().slice(0,10),
+      reason:"Default center commission",
+      note:"النسبة الافتراضية للمركز"
+    });
+  }
+
+  closeModal();
+  toast("تمت إضافة الأستاذ");
+  await showTeachers();
+  await loadDashboard();
+}
+
+function commissionForm(id,name){
+  openModal("نسبة المركز — "+name,`
+    <div class="form-grid">
+      <div>
+        <label>نسبة المركز %</label>
+        <input id="commissionRate"
+               type="number"
+               min="0"
+               max="100"
+               step="0.01"
+               value="25">
+      </div>
+
+      <div>
+        <label>تاريخ بداية العمل بالنسبة</label>
+        <input id="commissionDate"
+               type="date"
+               value="${new Date().toISOString().slice(0,10)}">
+      </div>
+
+      <div>
+        <label>السبب / الملاحظة</label>
+        <input id="commissionReason"
+               value="تحديد نسبة المركز">
+      </div>
+
+      <button class="primary"
+        onclick="saveCommission('${id}')">
+        حفظ النسبة
+      </button>
+
+      <button class="secondary"
+        onclick="setExempt('${id}')">
+        إعفاء الأستاذ — 0%
+      </button>
+    </div>
+  `);
+}
+
+async function saveCommission(teacherId){
+  const center_rate=Number(document.getElementById("commissionRate").value);
+  const valid_from=document.getElementById("commissionDate").value;
+  const reason=document.getElementById("commissionReason").value.trim();
+
+  if(center_rate<0 || center_rate>100){
+    toast("النسبة يجب أن تكون بين 0 و100");
+    return;
+  }
+
+  const {error}=await db
+    .from("teacher_commission_rules")
+    .insert({
+      teacher_id:teacherId,
+      center_rate,
+      valid_from,
+      reason:reason||null,
+      note:reason||null
+    });
+
+  if(error){
+    toast("خطأ: "+error.message);
+    return;
+  }
+
+  closeModal();
+  toast("تم حفظ النسبة");
+}
+
+async function setExempt(teacherId){
+  document.getElementById("commissionRate").value=0;
+  document.getElementById("commissionReason").value="إعفاء الأستاذ من نسبة المركز";
+  await saveCommission(teacherId);
+}
+
+async function showSubjects(){
+  loading();
+
+  const {data,error}=await db
+    .from("subjects")
+    .select("*")
+    .order("name_ar");
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  const rows=(data||[]).map(s=>`
+    <tr>
+      <td>${esc(s.name_ar)}</td>
+      <td>${esc(s.name_fr||"-")}</td>
+      <td>${s.active ? "نشطة":"غير نشطة"}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>المواد</h3>
+        <button class="secondary" onclick="subjectForm()">+ إضافة مادة</button>
+      </div>
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>المادة</th>
+              <th>Français</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا توجد مواد بعد.</div>`}
+      </div>
+    </div>`;
+}
+
+function subjectForm(){
+  openModal("إضافة مادة",`
+    <div class="form-grid">
+      <div>
+        <label>اسم المادة بالعربية *</label>
+        <input id="subAr">
+      </div>
+
+      <div>
+        <label>Nom en français</label>
+        <input id="subFr">
+      </div>
+
+      <button class="primary" onclick="addSubject()">حفظ المادة</button>
+    </div>
+  `);
+}
+
+async function addSubject(){
+  const name_ar=document.getElementById("subAr").value.trim();
+  const name_fr=document.getElementById("subFr").value.trim();
+
+  if(!name_ar){
+    toast("اسم المادة مطلوب");
+    return;
+  }
+
+  const {error}=await db.from("subjects").insert({
+    name_ar,
+    name_fr:name_fr||null,
+    active:true
+  });
+
+  if(error){
+    toast("خطأ: "+error.message);
+    return;
+  }
+
+  closeModal();
+  toast("تمت إضافة المادة");
+  await showSubjects();
+}
+
+async function showGroups(){
+  loading();
+
+  const {data,error}=await db
+    .from("groups")
+    .select(`
+      *,
+      subjects(name_ar),
+      teachers(full_name)
+    `)
+    .order("created_at",{ascending:false});
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  const rows=(data||[]).map(g=>`
+    <tr>
+      <td>${esc(g.group_name)}</td>
+      <td>${esc(g.school_level)}</td>
+      <td>${esc(g.subjects?.name_ar||"-")}</td>
+      <td>${esc(g.teachers?.full_name||"-")}</td>
+      <td>${esc(g.schedule_text||"-")}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>الأفواج</h3>
+        <button class="secondary" onclick="groupForm()">+ فوج جديد</button>
+      </div>
+
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>الفوج</th>
+              <th>المستوى</th>
+              <th>المادة</th>
+              <th>الأستاذ</th>
+              <th>التوقيت</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا توجد أفواج بعد.</div>`}
+      </div>
+    </div>`;
+}
+
+async function groupForm(){
+  const [subs,teachers]=await Promise.all([
+    db.from("subjects").select("id,name_ar").eq("active",true),
+    db.from("teachers").select("id,full_name").eq("active",true)
+  ]);
+
+  openModal("إضافة فوج",`
+    <div class="form-grid">
+
+      <div>
+        <label>اسم الفوج *</label>
+        <input id="gName" placeholder="مثال: 2BAC PC - Groupe 1">
+      </div>
+
+      <div>
+        <label>المستوى *</label>
+        <select id="gLevel">
+          ${levels.map(x=>`<option>${x}</option>`).join("")}
+        </select>
+      </div>
+
+      <div>
+        <label>المادة *</label>
+        <select id="gSubject">
+          ${(subs.data||[]).map(x=>
+            `<option value="${x.id}">${esc(x.name_ar)}</option>`
+          ).join("")}
+        </select>
+      </div>
+
+      <div>
+        <label>الأستاذ *</label>
+        <select id="gTeacher">
+          ${(teachers.data||[]).map(x=>
+            `<option value="${x.id}">${esc(x.full_name)}</option>`
+          ).join("")}
+        </select>
+      </div>
+
+      <div>
+        <label>القاعة</label>
+        <input id="gRoom">
+      </div>
+
+      <div>
+        <label>التوقيت</label>
+        <input id="gSchedule" placeholder="الإثنين 18:30">
+      </div>
+
+      <div>
+        <label>الطاقة الاستيعابية</label>
+        <input id="gCapacity" type="number" min="1">
+      </div>
+
+      <button class="primary" onclick="addGroup()">حفظ الفوج</button>
+    </div>
+  `);
+}
+
+async function addGroup(){
+  const obj={
+    group_name:document.getElementById("gName").value.trim(),
+    school_level:document.getElementById("gLevel").value,
+    subject_id:document.getElementById("gSubject").value,
+    teacher_id:document.getElementById("gTeacher").value,
+    room:document.getElementById("gRoom").value.trim()||null,
+    schedule_text:document.getElementById("gSchedule").value.trim()||null,
+    capacity:Number(document.getElementById("gCapacity").value)||null,
+    active:true
+  };
+
+  if(!obj.group_name){
+    toast("اسم الفوج مطلوب");
+    return;
+  }
+
+  const {error}=await db.from("groups").insert(obj);
+
+  if(error){
+    toast("خطأ: "+error.message);
+    return;
+  }
+
+  closeModal();
+  toast("تم إنشاء الفوج");
+  await showGroups();
+}
+
+async function showPayments(){
+  loading();
+
+  const {data,error}=await db
+    .from("student_payments")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  const rows=(data||[]).map(p=>`
+    <tr>
+      <td>${esc(p.receipt_no||"-")}</td>
+      <td>${money(p.amount)}</td>
+      <td>${esc(p.payment_method||"-")}</td>
+      <td>${esc(p.status||"-")}</td>
+      <td>${p.created_at ? new Date(p.created_at).toLocaleString("fr-MA") : "-"}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>الأداءات</h3>
+        <span class="badge">آخر 100 عملية</span>
+      </div>
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>الوصل</th>
+              <th>المبلغ</th>
+              <th>طريقة الأداء</th>
+              <th>الحالة</th>
+              <th>التاريخ</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا توجد أداءات بعد.</div>`}
+      </div>
+    </div>`;
+}
+
+async function showDebts(){
+  loading();
+
+  const {data,error}=await db
+    .from("monthly_dues")
+    .select("*")
+    .order("due_month",{ascending:false});
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  const debts=(data||[])
+    .filter(d=>d.status!=="exempt" &&
+      Number(d.amount_due||0)>Number(d.amount_paid||0));
+
+  const rows=debts.map(d=>{
+    const remaining=Number(d.amount_due||0)-Number(d.amount_paid||0);
+    return `
+      <tr>
+        <td>${esc(d.due_month||"-")}</td>
+        <td>${money(d.amount_due)}</td>
+        <td>${money(d.amount_paid)}</td>
+        <td>${money(remaining)}</td>
+        <td><span class="badge red">${esc(d.status)}</span></td>
+      </tr>
+    `;
+  }).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>الديون والمستحقات</h3>
+        <span class="badge red">${debts.length} مستحق</span>
+      </div>
+
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>الشهر</th>
+              <th>المستحق</th>
+              <th>المؤدى</th>
+              <th>الباقي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `<div class="empty">لا توجد ديون مسجلة.</div>`}
+      </div>
+    </div>`;
+}
+
+async function showSettlements(){
+  loading();
+
+  const {data,error}=await db
+    .from("teacher_settlements")
+    .select("*")
+    .order("created_at",{ascending:false})
+    .limit(100);
+
+  if(error){
+    document.getElementById("content").innerHTML=
+      `<div class="panel"><div class="empty">${esc(error.message)}</div></div>`;
+    return;
+  }
+
+  const rows=(data||[]).map(s=>`
+    <tr>
+      <td>${esc(s.settlement_no||s.id)}</td>
+      <td>${money(s.gross_collected)}</td>
+      <td>${Number(s.center_rate||0).toFixed(2)}%</td>
+      <td>${money(s.center_share)}</td>
+      <td>${money(s.teacher_net)}</td>
+      <td>${money(s.amount_paid)}</td>
+      <td>${money(s.remaining_amount)}</td>
+      <td>${esc(s.status||"-")}</td>
+    </tr>
+  `).join("");
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>تصفية مستحقات الأساتذة</h3>
+      </div>
+
+      <div class="table-wrap">
+        ${rows ? `
+        <table>
+          <thead>
+            <tr>
+              <th>رقم التصفية</th>
+              <th>المحصّل</th>
+              <th>نسبة المركز</th>
+              <th>حصة المركز</th>
+              <th>صافي الأستاذ</th>
+              <th>المؤدى</th>
+              <th>الباقي</th>
+              <th>الحالة</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>` : `
+        <div class="empty">
+          لا توجد تصفيات للأساتذة بعد.
+        </div>`}
+      </div>
+    </div>`;
+}
+
+async function showReports(){
+  loading();
+
+  const [
+    students,
+    teachers,
+    groups,
+    payments,
+    dues
+  ]=await Promise.all([
+    countTable("students"),
+    countTable("teachers"),
+    countTable("groups"),
+    db.from("student_payments").select("amount,status"),
+    db.from("monthly_dues").select("amount_due,amount_paid,status")
+  ]);
+
+  const totalPayments=(payments.data||[])
+    .filter(x=>!["voided","cancelled"].includes(String(x.status||"").toLowerCase()))
+    .reduce((a,b)=>a+Number(b.amount||0),0);
+
+  const totalDebt=(dues.data||[])
+    .filter(x=>x.status!=="exempt")
+    .reduce((a,b)=>
+      a+Math.max(0,Number(b.amount_due||0)-Number(b.amount_paid||0)),0);
+
+  document.getElementById("content").innerHTML=`
+    <div class="panel">
+      <div class="panel-head">
+        <h3>التقرير العام</h3>
+        <button class="secondary" onclick="window.print()">طباعة</button>
+      </div>
+
+      <div class="panel-body">
+        <div class="stats">
+          <div class="stat">
+            <div class="label">عدد التلاميذ</div>
+            <div class="value">${students}</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">عدد الأساتذة</div>
+            <div class="value">${teachers}</div>
+          </div>
+
+          <div class="stat">
+            <div class="label">عدد الأفواج</div>
+            <div class="value">${groups}</div>
+          </div>
+
+          <div class="stat green">
+            <div class="label">إجمالي التحصيل</div>
+            <div class="value">${money(totalPayments)}</div>
+          </div>
+
+          <div class="stat red">
+            <div class="label">إجمالي الديون</div>
+            <div class="value">${money(totalDebt)}</div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+}
+
+loadDashboard();
+</script>
+
+</body>
+</html>
