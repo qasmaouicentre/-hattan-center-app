@@ -7,7 +7,17 @@
   <title>مركز دروس الدعم والتقوية بحطان</title>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SUPABASE_URL = "https://ggpuvaekmfeglzlvvekq.supabase.co";
+const SUPABASE_KEY = "sb_publishable_2uW2oO0nKs5Z_xCRRV1QWw_nI4vu4hZ";
 
+const db = window.supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_KEY
+);
+
+console.log("Hattan Center - Supabase connected");
+</script>
   <style>
     *{box-sizing:border-box}
     :root{
